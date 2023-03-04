@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
 
 const solveQuadEq = (a, b, c) => {
     const A = (a === 1) ? '' : a;
@@ -27,4 +28,21 @@ if (process.argv.length === 3) {
         const args = data.split(' ');
         solveQuadEq(+args[0], +args[1], +args[2]);
     })
+}
+
+if (process.argv.length === 2) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    const question = (prompt) => new Promise((resolve) => {
+        rl.question(prompt, resolve);
+    });
+    (async () => {
+        const a = await question('a = ');
+        const b = await question('b = ');
+        const c = await question('c = ');
+        rl.close();
+        solveQuadEq(+a, +b, +c);
+    })();
 }
