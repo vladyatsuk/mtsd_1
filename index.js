@@ -3,14 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const isQuadraticEq = (a) => {
-    if (a === '0') {
-        console.error('Error. \'a\' cannot be 0');
-        return false;
-    }
-    return true;
-}
-
 const solveQuadEq = (a, b, c) => {
     const A = (a === 1) ? '' : a;
     const B = (b === 1) ? '' : b;
@@ -36,6 +28,15 @@ const validateValue = (value) => {
     return true;
 }
 
+const validateA = (a) => {
+    if (a === '0') {
+        console.error('Error. \'a\' cannot be 0');
+        return false;
+    }
+    else if (!validateValue(a)) return false;
+    return true;
+}
+
 const validateDataFormat = (data) => {
     const format = /^\d+\s\d+\s\d+\r?\n$/;
     return format.test(data);
@@ -51,7 +52,7 @@ if (process.argv.length === 3) {
     const data = fs.readFileSync(path.resolve(__dirname, fileName), 'utf-8');
     if (validateDataFormat(data)) {
         const [a, b, c] = data.trim().split(' ');
-        if (!isQuadraticEq(a)) {
+        if (!validateA(a)) {
             process.exit(1);
         }
         solveQuadEq(+a, +b, +c);
@@ -63,9 +64,9 @@ if (process.argv.length === 2) {
     const argsValues = [];
     process.stdout.write(`${args[0]} = `)
     process.stdin.on('data', (data) => {
-        const value = data.toString().replace(/\r\n|\n/g, '')
+        const value = data.toString().replace(/\r\n|\n/g, '');
         if (argsValues.length < args.length) {
-            if (argsValues.length === 0 && isQuadraticEq(value) && validateValue(value)) {
+            if (argsValues.length === 0 && validateA(value)) {
                 argsValues.push(value);
                 process.stdout.write(`${args[argsValues.length]} = `);
             } else if (argsValues.length > 0 && validateValue(value)) {
@@ -73,12 +74,12 @@ if (process.argv.length === 2) {
                 if (argsValues.length < args.length) {
                     process.stdout.write(`${args[argsValues.length]} = `);
                 } else {
-                    solveQuadEq(...argsValues);
+                    solveQuadEq(+argsValues[0], +argsValues[1], +argsValues[2]);
                     process.exit();
                 }
             } else {
                 process.stdout.write(`${args[argsValues.length]} = `);
             }
         }
-    })
+    });
 }
