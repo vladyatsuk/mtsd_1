@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
 
 const isQuadraticEq = (a) => {
     if (a === '0') {
@@ -28,18 +27,6 @@ const solveQuadEq = (a, b, c) => {
     }
     else console.log('There are no real roots');
 }
-const promptValue = async (prompt) => {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    return new Promise((resolve) => {
-        rl.question(prompt, (value) => {
-            rl.close();
-            resolve(value);
-        });
-    });
-};
 
 const validateValue = (value) => {
     if (!/^\d+$/.test(value)) {
@@ -54,14 +41,6 @@ const validateDataFormat = (data) => {
     return format.test(data);
 }
 
-
-const readValue = async (prompt, validate) => {
-    while (true) {
-        const value = await promptValue(prompt);
-        if (validate(value)) return value;
-    }
-}
-
 if (process.argv.length === 3) {
     const fileName = process.argv[2];
     const filePath = path.resolve(__dirname, fileName);
@@ -72,8 +51,7 @@ if (process.argv.length === 3) {
     const data = fs.readFileSync(path.resolve(__dirname, fileName), 'utf-8');
     if (validateDataFormat(data)) {
         const [a, b, c] = data.trim().split(' ');
-        if (a === '0') {
-            console.error('Error. \'a\' cannot be 0');
+        if (!isQuadraticEq(a)) {
             process.exit(1);
         }
         solveQuadEq(+a, +b, +c);
@@ -81,11 +59,26 @@ if (process.argv.length === 3) {
 }
 
 if (process.argv.length === 2) {
-    (async () => {
-        const a = await readValue('a = ', (value) => validateValue(value) && isQuadraticEq(value));
-        const b = await readValue('b = ', validateValue);
-        const c = await readValue('c = ', validateValue);
-        solveQuadEq(+a, +b, +c);
-    })();
-
+    const args = ['a', 'b', 'c'];
+    const argsValues = [];
+    process.stdout.write(`${args[0]} = `)
+    process.stdin.on('data', (data) => {
+        const value = data.toString().replace(/\r\n|\n/g, '')
+        if (argsValues.length < args.length) {
+            if (argsValues.length === 0 && isQuadraticEq(value) && validateValue(value)) {
+                argsValues.push(value);
+                process.stdout.write(`${args[argsValues.length]} = `);
+            } else if (argsValues.length > 0 && validateValue(value)) {
+                argsValues.push(value);
+                if (argsValues.length < args.length) {
+                    process.stdout.write(`${args[argsValues.length]} = `);
+                } else {
+                    solveQuadEq(...argsValues);
+                    process.exit();
+                }
+            } else {
+                process.stdout.write(`${args[argsValues.length]} = `);
+            }
+        }
+    })
 }
