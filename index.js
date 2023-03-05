@@ -21,7 +21,7 @@ const solveQuadEq = (a, b, c) => {
 }
 
 const validateValue = (value) => {
-    if (!/^\d+$/.test(value)) {
+    if (!/^(?!0\d)\d+(\.\d+)?$/.test(value)) {
         console.error('Error. Value must be a number');
         return false;
     }
@@ -29,7 +29,7 @@ const validateValue = (value) => {
 }
 
 const validateA = (a) => {
-    if (a === '0') {
+    if (/^0*(\.0+)?$/.test(a)) {
         console.error('Error. \'a\' cannot be 0');
         return false;
     }
@@ -38,7 +38,7 @@ const validateA = (a) => {
 }
 
 const validateDataFormat = (data) => {
-    const format = /^\d+\s\d+\s\d+\r?\n$/;
+    const format = /^(?!0\d)\d+(\.\d+)?\s(?!0\d)\d+(\.\d+)?\s(?!0\d)\d+(\.\d+)?\r?\n$/;
     return format.test(data);
 }
 
